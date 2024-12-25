@@ -1,0 +1,86 @@
+<view class='container'>
+  <view class='content'>
+    <!-- 头像选择 -->
+    <button 
+      class="avatar-wrapper" 
+      open-type="chooseAvatar" 
+      bind:chooseavatar="onChooseAvatar"
+    >
+      <image 
+        class='avatar' 
+        src="{{avatarUrl}}" 
+        mode="cover"
+      ></image>
+    </button>
+
+
+    <!-- 昵称输入 -->
+    <input 
+      type="nickname" 
+      class="weui-input" 
+      placeholder="请输入昵称" 
+      bind:change="onInputNickname"
+    />
+
+
+    <!-- 登录按钮 -->
+    <button 
+      class='login-btn' 
+      type='primary' 
+      bindtap="doLogin"
+      disabled="{{!avatarUrl || !nickname}}"
+    >
+      确认登录
+    </button>
+
+
+    <!-- 功能按钮 -->
+    <block wx:if="{{hasUserInfo}}">
+      <view class="button-container">
+        <button 
+          class='click-btn' 
+          type='primary' 
+          bindtap='toMenu'
+        >
+          立即点餐
+        </button>
+
+
+        <button 
+          class='order-btn' 
+          type='default' 
+          bindtap='toMyOrder'
+        >
+          我的订单
+        </button>
+
+
+        <!-- 管理员入口 -->
+        <button 
+          wx:if="{{isAdmin}}" 
+          class='admin-btn' 
+          bindtap="openadmin"
+        >
+          管理员入口
+        </button>
+      </view>
+
+
+      <!-- 重新登录和退出 -->
+      <view class="login-actions">
+        <button 
+          size="mini" 
+          bindtap="reLogin"
+        >
+          重新登录
+        </button>
+        <button 
+          size="mini" 
+          bindtap="logout"
+        >
+          退出登录
+        </button>
+      </view>
+    </block>
+  </view>
+</view>
