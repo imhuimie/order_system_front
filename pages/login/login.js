@@ -129,10 +129,7 @@ Page({
         });
 
 
-        // 可选：跳转到主页或其他页面
-        wx.reLaunch({
-          url: '/pages/index/index'
-        });
+        
       })
       .catch((error) => {
         wx.hideLoading();
