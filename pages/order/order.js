@@ -105,7 +105,7 @@ formatTime: function(timeString) {
         cusid: app.globalData.cusid
       },
       success: res => {
-        console.log('完整响应数据:', res.data);
+        console.log('订单完整响应:', res.data);
       console.log('cusid:', app.globalData.cusid);
       // 检查响应数据中是否有overOrder
       if (!res.data.overOrder) {
@@ -115,55 +115,55 @@ formatTime: function(timeString) {
   
         // 处理进行中的订单
         let foodlist = res.data.order || [];
-        if (res.data.order && res.data.order.length > 0) {
-          foodlist = res.data.order.map((order, index) => {
-            return {
-              orderid: order.ORDERID,
-              orderPrice: order.ORDERTOTLEPRICE,
-              orderTime: 30, // 默认烹饪时间
-              orderState: order.ORDERSTATE,
-              orderSort: index + 1,
-              foods: order.foods ? order.foods.split(',') : [],
-              createTime: this.formatTime(order.ORDERTIME) || '',
-              totalPrice: order.ORDERTOTLEPRICE || 0,
-              orderType: 'current'
-            }
-          });
-        }
+      if (res.data.order && res.data.order.length > 0) {
+        foodlist = res.data.order.map((order, index) => {
+          return {
+            orderid: order.ORDERID,
+            orderPrice: order.ORDERTOTLEPRICE,
+            orderTime: 30,
+            orderState: order.ORDERSTATE,
+            orderSort: index + 1,
+            foods: order.foods ? order.foods.split(',') : [],
+            createTime: this.formatTime(order.ORDERTIME) || '',
+            totalPrice: order.ORDERTOTLEPRICE || 0,
+            orderType: 'current'
+          }
+        });
+      }
   
   
         // 处理已完成订单时增加更多日志和容错
         let overlist = [];
-        if (res.data.overOrder && res.data.overOrder.length > 0) {
-          overlist = res.data.overOrder.map(order => {
-            console.log('单个已完成订单详情:', order);
-            return {
-              ORDERID: order.ORDERID,
-              ORDERTOTLEPRICE: order.ORDERTOTLEPRICE,
-              orderType: 'over',
-              CREATEDAT: this.formatTime(order.ORDERTIME),
-              foods: order.foods ? order.foods.split(',') : [],
-              COMPLETEDAT: this.formatTime(order.COMPLETEDAT || order.ORDERTIME)
-            }
-          });
-        } else {
-          console.warn('没有已完成订单数据');
-        }
-  
-  
-        console.log('处理后的已完成订单:', overlist);
+      if (res.data.overOrder && res.data.overOrder.length > 0) {
+        overlist = res.data.overOrder.map(order => {
+          console.log('单个已完成订单:', order);
+          return {
+            ORDERID: order.ORDERID,
+            ORDERTOTLEPRICE: order.ORDERTOTLEPRICE,
+            orderType: 'over',
+            CREATEDAT: this.formatTime(order.ORDERTIME),
+            foods: order.foods ? order.foods.split(',') : [],
+            COMPLETEDAT: this.formatTime(order.COMPLETEDAT || order.ORDERTIME)
+          }
+        });
+      } else {
+        console.warn('没有已完成订单数据');
+      }
+
+
+      console.log('处理后的已完成订单:', overlist);
   
         // 更新页面数据
-        this.setData({
-          foodlist: foodlist,
-          overlist: overlist
-        });
-      },
-      fail: err => {
-        console.error('获取订单失败', err);
-        wx.showToast({
-          title: '获取订单失败',
-          icon: 'none'
+      this.setData({
+        foodlist: foodlist,
+        overlist: overlist
+      });
+    },
+    fail: err => {
+      console.error('获取订单失败', err);
+      wx.showToast({
+        title: '获取订单失败',
+        icon: 'none'
         });
       }
     });
