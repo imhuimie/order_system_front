@@ -1,71 +1,112 @@
-<!--pages/order/order.wxml-->
 <view class="contioner">
   <view class="img-box">
     <image class='head-img' src='../img/logo.png'></image>
   </view>
-  <view class='orderiIng'>
-    <text style='margin: 10px 5px;color: #040404;'>进行中订单：</text>
-    <block wx:for="{{foodlist}}" :key="index">
-      <view class="page-head-box ">
-      <view class='myfont1 '>当前此订单排到了
-        <text class='myfont2'>{{item.orderSort}} </text>位</view>
-      <view class='page-info-down myfont1'>预计需要
-        <text class='myfont2'>{{item.orderTime}} </text>分钟</view>
-      </view>
-      <view class="order-list-box">
-        <view class="order-head-box">
-          <view class="myfont3">付款金额</view>
-          <view class="myfont2">¥{{item.orderPrice}}</view>
-        </view>
-        <view class="order-body-box">
-          <view class="body-item-box">
-            <view class="myfont4 body-l">商 品</view>
-            <view class="myfont4 body-r item-food-box">
-              <block  wx:for="{{item.foods}}" wx:key="{{item.gid}}">
-                <view class="myfont4 ">{{item}} </view>
-              </block>
+  
+  <!-- 进行中订单部分 -->
+  <view class="orderiIng">
+    <text style='margin: 10px 5px;color: #040404;'>进行中订单:</text>
+    
+    <block wx:if="{{foodlist.length > 0}}">
+      <block wx:for="{{foodlist}}" wx:key="orderid">
+        <view class="order-list-box">
+          <!-- 调试信息 -->
+          <!-- <view wx:if="{{index === 0}}" class="debug-info">
+            <text>调试信息：首个订单详情</text>
+            <text>订单ID: {{item.orderid}}</text>
+            <text>商品信息: {{item.foods}}</text>
+            <text>创建时间: {{item.createTime}}</text>
+          </view> -->
+
+
+          <view class="order-head-box">
+            <view class="myfont3">付款金额</view>
+            <view class="myfont2">¥{{item.totalPrice}}</view>
+          </view>
+          
+          <view class="order-body-box">
+            <view class="body-item-box">
+              <view class="myfont4 body-l">商 品</view>
+              <view class="myfont4 body-r item-food-box">
+                <block wx:if="{{item.foods && item.foods.length > 0}}">
+                  <block wx:for="{{item.foods}}" wx:key="*this" wx:for-item="foodItem">
+                    <view class="myfont4">
+                      {{foodItem}}
+                    </view>
+                  </block>
+                </block>
+                <view wx:else class="myfont4">暂无商品</view>
               </view>
             </view>
-            <view class="body-item-box ">
-              <view class="myfont4 body-l ">收获地址</view>
-              <view class="myfont4 body-r ">广州铁路职业技术学校</view>
+            
+            <view class="body-item-box">
+              <view class="myfont4 body-l">下单时间</view>
+              <view class="myfont4 body-r">{{item.createTime}}</view>
             </view>
-            <view class="body-item-box ">
-              <view class="myfont4 body-l ">收款方</view>
-              <view class="myfont4 body-r ">广铁餐厅</view>
+            
+            <view class="body-item-box">
+              <view class="myfont4 body-l">订单编号</view>
+              <view class="myfont4 body-r">{{item.orderid}}</view>
             </view>
           </view>
-          <view class="order-bottom-box ">
-            <view class="myfont5 bottom-text " bindtap="agin">再来一单</view>
+          
+          <view class="order-bottom-box">
+            <view class="myfont5 bottom-text" bindtap="agin">再来一单</view>
           </view>
         </view>
+      </block>
+    </block>
+    
+    <block wx:else>
+      <view class="no-order-tip">
+        <text>暂无进行中的订单</text>
+      </view>
     </block>
   </view>
+  
   <view class='overorder'>
-    <text style='margin: 10px 5px;color: #040404;'>已完成订单：</text>
-    <block wx:for="{{overlist}}" :key="index">
-      <view class="order-list-box">
-        <view class="order-head-box">
-          <view class="myfont3">付款金额</view>
-          <view class="myfont2">¥{{item.ORDERTOTLEPRICE}}</view>
-        </view>
-        <view class="order-body-box">
-          <view class="body-item-box">
-            <view class="myfont4 body-l">商品订单编号</view>
-            <view class="myfont4 body-r item-food-box">
-              {{item.ORDERID}}
+    <text style='margin: 10px 5px;color: #040404;'>已完成订单:</text>
+    <block wx:if="{{overlist.length > 0}}">
+      <block wx:for="{{overlist}}" wx:key="ORDERID">
+        <view class="order-list-box">
+          <view class="order-head-box">
+            <view class="myfont3">付款金额</view>
+            <view class="myfont2">¥{{item.ORDERTOTLEPRICE}}</view>
+          </view>
+          
+          <view class="order-body-box">
+            <view class="body-item-box">
+              <view class="myfont4 body-l">商 品</view>
+              <view class="myfont4 body-r item-food-box">
+                <block wx:if="{{item.foods && item.foods.length > 0}}">
+                  <block wx:for="{{item.foods}}" wx:key="*this" wx:for-item="foodItem">
+                    <view class="myfont4">
+                      {{foodItem}}
+                    </view>
+                  </block>
+                </block>
+                <view wx:else class="myfont4">暂无商品信息</view>
               </view>
             </view>
-            <view class="body-item-box ">
-              <view class="myfont4 body-l ">收获地址</view>
-              <view class="myfont4 body-r ">广州铁路职业技术学院</view>
+            
+            <view class="body-item-box">
+              <view class="myfont4 body-l">完成时间</view>
+              <view class="myfont4 body-r">{{item.COMPLETEDAT}}</view>
             </view>
-            <view class="body-item-box ">
-              <view class="myfont4 body-l ">收款方</view>
-              <view class="myfont4 body-r ">广铁餐厅</view>
+            
+            <view class="body-item-box">
+              <view class="myfont4 body-l">订单编号</view>
+              <view class="myfont4 body-r">{{item.ORDERID}}</view>
             </view>
           </view>
         </view>
       </block>
-    </view>
+    </block>
+    
+    <block wx:else>
+      <view class="no-order-tip">
+        <text>暂无已完成的订单</text>
+      </view>
+    </block>
   </view>
+</view>

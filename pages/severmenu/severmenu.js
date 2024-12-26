@@ -212,23 +212,26 @@ Page({
     })
   },
   over: function (e) {
-    console.log(e.target.dataset.id)
+    const orderId = e.target.dataset.id;
+    console.log('Attempting to complete order:', orderId);
+    
     wx.request({
       url: app.globalData.serveraddr + '/order/orderAdminOver',
+      method: 'POST',  // 明确指定 POST 方法
       data: {
         orderid: e.target.dataset.id,
       },
       success: res => {
-        if (res.data.result.code == 200) {
+        if (res.data.result && res.data.result.code === 200) {
           wx.showToast({
             title: '订单已完成',
             icon: 'success',
             duration: 2000
           })
+          // 刷新订单列表
           wx.request({
             url: app.globalData.serveraddr + '/order/getOrderAdmin',
             success: res => {
-              console.log(res)
               this.setData({
                 orderlist: res.data.cusOrderArr
               })
@@ -236,12 +239,37 @@ Page({
           })
         } else {
           wx.showToast({
-            title: '订单完成错误',
+            title: res.data.result.msg || '订单完成错误',
             icon: 'none',
             duration: 2000
           })
         }
+      },
+      fail: err => {
+        console.error('Request failed:', err);
+        wx.showToast({
+          title: '网络请求失败',
+          icon: 'none',
+          duration: 2000
+        })
       }
     })
+  },
+
+
+  // 新增刷新订单列表的方法
+  refreshOrderList: function() {
+    wx.request({
+      url: app.globalData.serveraddr + '/order/getOrderAdmin',
+      success: res => {
+        console.log('Refreshed order list:', res);
+        this.setData({
+          orderlist: res.data.cusOrderArr || []
+        });
+      },
+      fail: err => {
+        console.error('Failed to refresh order list:', err);
+      }
+    });
   },
 })

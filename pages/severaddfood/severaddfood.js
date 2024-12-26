@@ -143,62 +143,61 @@ Page({
 
 
   // 上传图片到服务器
-uploadImage: function (filePath) {
-  wx.uploadFile({
-    url: `${app.globalData.serveraddr}/foodadmin/addGoodsImg`,
-    filePath: filePath,
-    name: 'fileImg',
-    success: (uploadRes) => {
-      console.log('上传响应原始数据:', uploadRes.data);
-      
-      // 安全地解析响应
-      try {
-        // 尝试解析 JSON
-        const result = typeof uploadRes.data === 'string' 
-          ? JSON.parse(uploadRes.data) 
-          : uploadRes.data;
+  uploadImage: function (filePath) {
+    wx.uploadFile({
+      url: `${app.globalData.serveraddr}/foodadmin/addGoodsImg`,
+      filePath: filePath,
+      name: 'fileImg',
+      success: (uploadRes) => {
+        console.log('上传响应原始数据:', uploadRes.data);
         
-        console.log('解析后的结果:', result);
-        
-        if (result.imageUrl) {
-          // 替换 localhost 为服务器公网地址
-          const imageUrl = result.imageUrl.replace('https://wx.544444.xyz', app.globalData.serveraddr);
+        // 安全地解析响应
+        try {
+          // 尝试解析 JSON
+          const result = typeof uploadRes.data === 'string' 
+            ? JSON.parse(uploadRes.data) 
+            : uploadRes.data;
           
-          this.setData({
-            files: [imageUrl]
+          console.log('解析后的结果:', result);
+          
+          if (result.imageUrl) {
+            // 替换 localhost 为服务器公网地址
+            const imageUrl = result.imageUrl.replace('https://wx.544444.xyz', app.globalData.serveraddr);
+            
+            this.setData({
+              files: [imageUrl]
+            });
+          } else {
+            console.error('未找到图片URL', result);
+          }
+        } catch (error) {
+          console.error('解析上传响应失败', error);
+          wx.showToast({
+            title: '图片上传失败',
+            icon: 'none'
           });
-        } else {
-          console.error('未找到图片URL', result);
         }
-      } catch (error) {
-        console.error('解析上传响应失败', error);
+      },
+      fail: (err) => {
+        console.error('图片上传失败', err);
         wx.showToast({
           title: '图片上传失败',
           icon: 'none'
         });
       }
-    },
-    fail: (err) => {
-      console.error('图片上传失败', err);
-      wx.showToast({
-        title: '图片上传失败',
-        icon: 'none'
-      });
-    }
-  });
-},
+    });
+  },
 
 
   // 提交表单
   submit: function (e) {
     var that = this
-    
     var warningflag = false;
-    console.log(e.detail.value.foodname);
     
     // 重置 foodinfo
     this.data.foodinfo = {};
-    
+
+
     // 表单验证
     if (e.detail.value.foodname == '') {
       this.setData({
@@ -207,7 +206,8 @@ uploadImage: function (filePath) {
       warningflag = true;
     } else {
       this.data.foodinfo.gname = e.detail.value.foodname;
-      
+
+
       if (e.detail.value.foodprice == '') {
         this.setData({
           warning: "请输入价格",
@@ -215,8 +215,8 @@ uploadImage: function (filePath) {
         warningflag = true;
       } else {
         this.data.foodinfo.gprice = e.detail.value.foodprice;
-        this.data.foodinfo.goprice = e.detail.value.foodprice;
-        
+
+
         if (e.detail.value.foodtime == '') {
           this.setData({
             warning: "请输入供应时段",
@@ -224,7 +224,8 @@ uploadImage: function (filePath) {
           warningflag = true;
         } else {
           this.data.foodinfo.gcontent = e.detail.value.foodtime;
-          
+
+
           if (e.detail.value.fooddiscribe == '') {
             this.setData({
               warning: "请输入菜品描述",
@@ -232,7 +233,8 @@ uploadImage: function (filePath) {
             warningflag = true;
           } else {
             this.data.foodinfo.ginfo = e.detail.value.fooddiscribe;
-            
+
+
             if (this.data.files.length === 0) {
               this.setData({
                 warning: "请添加图片",
@@ -241,11 +243,18 @@ uploadImage: function (filePath) {
             } else {
               // 提取文件名
               this.data.foodinfo.gimg = this.data.files[0].split('/').pop();
-              
+
+
               // 选择菜品类型
               for (var i = 0; i < this.data.radioItems.length; i++) {
                 if (this.data.radioItems[i].checked == true)
                   this.data.foodinfo.gtid = i + 1;
+              }
+
+
+              // 获取需要时间并添加到 foodinfo 中
+              if (e.detail.value.gtime) {
+                this.data.foodinfo.gtime = e.detail.value.gtime; // 新增需要时间
               }
             }
           }
@@ -284,7 +293,8 @@ uploadImage: function (filePath) {
             icon: 'success',
             duration: 1000
           });
-          
+
+
           wx.reLaunch({
             url: '../severmenu/severmenu'
           });

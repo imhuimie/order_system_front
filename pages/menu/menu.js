@@ -185,10 +185,23 @@ Page({
         }
       }
     }
+    
     this.setData({
       myfoodList: foodlist
     })
+    
     console.log(this.data.myfoodList)
+    
+    // 确保传递正确的用户ID
+    if (!app.globalData.cusid) {
+      wx.showToast({
+        title: '用户未登录',
+        icon: 'none'
+      });
+      return;
+    }
+  
+  
     wx.navigateTo({
       url: '../usermenu/usermenu?foodslist=' + JSON.stringify(this.data.myfoodList)
     })
