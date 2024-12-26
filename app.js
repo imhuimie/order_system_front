@@ -9,7 +9,7 @@ App({
     cusid: null,
     isHaveOrder: false,
     limit: false,
-    loginTimestamp: null  // 新增登录时间戳
+    loginTimestamp: null
   },
 
 
@@ -24,88 +24,40 @@ App({
     this.globalData.appid = accountInfo.miniProgram.appId
 
 
-    // 检查登录状态和有效期
-    this.checkLoginState()
+    // 启动时尝试恢复登录状态
+    this.restoreLoginState()
   },
 
 
-  // 新增登录状态检查方法
-  checkLoginState() {
+  // 新增登录状态恢复方法
+  restoreLoginState() {
     const loginState = wx.getStorageSync('loginState')
     const userInfo = wx.getStorageSync('userInfo')
     const openid = wx.getStorageSync('openid')
     const loginTimestamp = wx.getStorageSync('loginTimestamp')
+    const cusid = wx.getStorageSync('cusid')
     const isAdmin = wx.getStorageSync('isAdmin')
+    const isHaveOrder = wx.getStorageSync('isHaveOrder')
 
 
-    // 检查登录是否过期(例如7天内有效)
+    // 检查登录是否过期(7天内有效)
     const isLoginValid = loginTimestamp && 
       (Date.now() - loginTimestamp < 7 * 24 * 60 * 60 * 1000)
 
 
-    if (loginState && userInfo && openid && isLoginValid) {
+    if (loginState && userInfo && openid && isLoginValid && cusid) {
       this.globalData.isLogin = true
       this.globalData.userInfo = userInfo
       this.globalData.openid = openid
-      this.globalData.loginTimestamp = loginTimestamp
+      this.globalData.cusid = cusid
       this.globalData.isAdmin = isAdmin || false
-    } else {
-      this.globalData.isLogin = false
-      // 清除过期的登录信息
-      wx.removeStorageSync('loginState')
-      wx.removeStorageSync('userInfo')
-      wx.removeStorageSync('openid')
-      wx.removeStorageSync('loginTimestamp')
-      wx.removeStorageSync('isAdmin')
+      this.globalData.isHaveOrder = isHaveOrder || false
+      this.globalData.loginTimestamp = loginTimestamp
+
+
+      return true
     }
-  },
-
-
-  // 修改登录方法，增加持久化和时间戳
-  loginWithUserProfile() {
-    return new Promise((resolve, reject) => {
-      if (!this.globalData.userInfo) {
-        reject(new Error('未获取用户信息'));
-        return;
-      }
-      
-      this.getOpenId()
-        .then(res => {
-          // 保存登录状态和时间戳
-          const timestamp = Date.now()
-          wx.setStorageSync('loginState', true);
-          wx.setStorageSync('userInfo', this.globalData.userInfo);
-          wx.setStorageSync('openid', this.globalData.openid);
-          wx.setStorageSync('loginTimestamp', timestamp);
-          wx.setStorageSync('isAdmin', this.globalData.isAdmin);
-
-
-          this.globalData.loginTimestamp = timestamp
-          resolve(res);
-        })
-        .catch(reject);
-    });
-  },
-
-
-  // 退出登录方法保持不变
-  logout() {
-    this.globalData.userInfo = null
-    this.globalData.openid = null
-    this.globalData.isLogin = false
-    this.globalData.isAdmin = false
-    this.globalData.cusid = null
-    this.globalData.isHaveOrder = false
-    this.globalData.limit = false
-    this.globalData.loginTimestamp = null
-
-
-    // 清除本地存储
-    wx.removeStorageSync('loginState')
-    wx.removeStorageSync('userInfo')
-    wx.removeStorageSync('openid')
-    wx.removeStorageSync('loginTimestamp')
-    wx.removeStorageSync('isAdmin')
+    return false
   },
 
 
@@ -184,6 +136,20 @@ App({
                       that.globalData.isHaveOrder = r.data.isHaveOrder || false;
 
 
+                      // 持久化登录信息
+                      const timestamp = Date.now()
+                      wx.setStorageSync('loginState', true);
+                      wx.setStorageSync('userInfo', that.globalData.userInfo);
+                      wx.setStorageSync('openid', that.globalData.openid);
+                      wx.setStorageSync('loginTimestamp', timestamp);
+                      wx.setStorageSync('cusid', that.globalData.cusid);
+                      wx.setStorageSync('isAdmin', that.globalData.isAdmin);
+                      wx.setStorageSync('isHaveOrder', that.globalData.isHaveOrder);
+
+
+                      that.globalData.loginTimestamp = timestamp
+
+
                       resolve(that.globalData);
                     } else {
                       console.error('登录失败:', r.data);
@@ -212,5 +178,47 @@ App({
         }
       });
     });
+  },
+
+
+  // 登录方法，增加持久化和时间戳
+  loginWithUserProfile() {
+    return new Promise((resolve, reject) => {
+      if (!this.globalData.userInfo) {
+        reject(new Error('未获取用户信息'));
+        return;
+      }
+      
+      this.getOpenId()
+        .then(res => {
+          resolve(res);
+        })
+        .catch(reject);
+    });
+  },
+
+
+  // 退出登录方法
+  logout() {
+    // 清除全局数据
+    this.globalData.userInfo = null
+    this.globalData.openid = null
+    this.globalData.isLogin = false
+    this.globalData.isAdmin = false
+    this.globalData.cusid = null
+    this.globalData.isHaveOrder = false
+    this.globalData.limit = false
+    this.globalData.loginTimestamp = null
+
+
+    // 清除本地存储
+    wx.removeStorageSync('loginState')
+    wx.removeStorageSync('userInfo')
+    wx.removeStorageSync('openid')
+    wx.removeStorageSync('loginTimestamp')
+    wx.removeStorageSync('cusid')
+    wx.removeStorageSync('isAdmin')
+    wx.removeStorageSync('isHaveOrder')
+    wx.removeStorageSync('limit')
   }
 })
